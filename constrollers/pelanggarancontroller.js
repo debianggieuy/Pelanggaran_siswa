@@ -1,46 +1,36 @@
-let modelUser = require("../models/index").user
-let md5 = require(`md5`)
+let modelPelanggaran = require("../models/index").pelanggaran
 
-exports.getUser = async (request, response) => {
-    let dataUser = await modelUser.findAll()
-    return response.json(dataUser)
+exports.getPelanggaran = async (request, response) => {
+    let dataPelanggaran = await modelPelanggaran.findAll()
+    return response.json(dataPelanggaran)
 }
 
-exports.addUser = (request, response) => {
-    let dataUser = {
-        nama_user: request.body.nama_user,
-        username: request.body.username,
-        password: md5(request.body.password)
-    }
+exports.findPelanggaran = async (request, response) => {
+    let keyword = request.body.keyword
+    let sequelize = require(`sequelize`)
+    let Op = sequelize.Op
 
-    modelUser.create(dataUser)
-    .then(result => {
-        return response.json({
-            message: `Data user berhasil ditambahkan`
-        })
+    /** query = select * from pelanggaran where
+     * nama_pelanggaran like '%keyword%'
+     */
+    let dataPelanggaran = await modelPelanggaran.findAll({
+        where: {
+            nama_pelanggaran: { [Op.like]: `%${keyword}%` }
+        }
     })
-    .catch(error => {
-        return response.json({
-            message: error.message
-        })
-    })
+    return response.json(dataPelanggaran)
 }
 
-exports.updateUser = (request, response) => {
-    let params = {
-        id_user: request.params.id_user
+exports.addPelanggaran = (request, response) => {
+    let dataPelanggaran = {
+        nama_pelanggaran: request.body.nama_pelanggaran,
+        poin: request.body.poin
     }
 
-    let dataUser = {
-        nama_user: request.body.nama_user,
-        username: request.body.username,
-        password: md5(request.body.password)
-    }
-
-    modelUser.update(dataUser, {where: params})
+    modelPelanggaran.create(dataPelanggaran)
         .then(result => {
             return response.json({
-                message: `Data user berhasil diubah`
+                message: `Data pelanggaran berhasil ditambahkan`
             })
         })
         .catch(error => {
@@ -50,15 +40,38 @@ exports.updateUser = (request, response) => {
         })
 }
 
-exports.deleteUser = (request, response) => {
+exports.updatePelanggaran = (request, response) => {
     let params = {
-        id_user: request.params.id_user
+        id_pelanggaran: request.params.id_pelanggaran
     }
 
-    modelUser.destroy({where: params})
+    let dataPelanggaran = {
+        nama_pelanggaran: request.body.nama_pelanggaran,
+        poin: request.body.poin,
+    }
+
+    modelPelanggaran.update(dataPelanggaran, { where: params })
         .then(result => {
             return response.json({
-                message: `Data user berhasil dihapus`
+                message: `Data pelanggaran berhasil diubah`
+            })
+        })
+        .catch(error => {
+            return response.json({
+                message: error.message
+            })
+        })
+}
+
+exports.deletePelanggaran = (request, response) => {
+    let params = {
+        id_pelanggaran: request.params.id_pelanggaran
+    }
+
+    modelPelanggaran.destroy({ where: params })
+        .then(result => {
+            return response.json({
+                message: `Data Pelanggaran berhasil dihapus`
             })
         })
         .catch(error => {
